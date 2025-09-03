@@ -1,0 +1,266 @@
+<!-- Save as windows10-apps.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Windows 10 Desktop Mockup</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(120deg, #0078d7 0%, #1a237e 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: white;
+      overflow: hidden;
+    }
+    .desktop-icons {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+    .icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 70px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .icon img {
+      width: 48px;
+      height: 48px;
+    }
+    .icon span {
+      margin-top: 5px;
+      font-size: 14px;
+      text-shadow: 1px 1px 2px #0008;
+    }
+    .taskbar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100vw;
+      height: 48px;
+      background: rgba(30, 30, 30, 0.95);
+      display: flex;
+      align-items: center;
+      box-shadow: 0 -2px 8px #0006;
+    }
+    .start-btn {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: none;
+      border: none;
+      outline: none;
+    }
+    .start-btn img {
+      width: 28px;
+      height: 28px;
+    }
+    .taskbar-time {
+      margin-left: auto;
+      margin-right: 20px;
+      font-size: 16px;
+      color: #fff;
+      text-shadow: 1px 1px 2px #0008;
+    }
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.4);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: #f3f3f3;
+      color: #222;
+      border-radius: 8px;
+      box-shadow: 0 4px 32px #0008;
+      min-width: 400px;
+      min-height: 300px;
+      max-width: 90vw;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .modal-header {
+      background: #0078d7;
+      color: #fff;
+      padding: 8px 16px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .close-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .modal-body {
+      flex: 1;
+      padding: 16px;
+      overflow: auto;
+      background: #fff;
+    }
+    /* Responsive iframe for Edge */
+    .modal-body iframe {
+      width: 100%;
+      height: 60vh;
+      border: none;
+    }
+    /* Simple paint canvas */
+    #paint-canvas {
+      border: 1px solid #888;
+      background: #fff;
+      cursor: crosshair;
+    }
+    /* Simple maze placeholder */
+    #maze-placeholder {
+      width: 100%;
+      height: 250px;
+      background: repeating-linear-gradient(
+        45deg, #e0e0e0, #e0e0e0 10px, #bdbdbd 10px, #bdbdbd 20px
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="desktop-icons">
+    <div class="icon" onclick="openModal('paint')">
+      <img src="https://img.icons8.com/color/48/000000/paint-palette.png" alt="Paint">
+      <span>Paint</span>
+    </div>
+    <div class="icon" onclick="openModal('maze')">
+      <img src="https://img.icons8.com/color/48/000000/maze.png" alt="Maze">
+      <span>Maze</span>
+    </div>
+    <div class="icon" onclick="openModal('edge')">
+      <img src="https://img.icons8.com/color/48/000000/ms-edge-new.png" alt="Edge">
+      <span>Edge</span>
+    </div>
+    <div class="icon">
+      <img src="https://img.icons8.com/color/48/000000/recycle-bin.png" alt="Recycle Bin">
+      <span>Recycle Bin</span>
+    </div>
+    <div class="icon">
+      <img src="https://img.icons8.com/color/48/000000/folder-invoices--v1.png" alt="Folder">
+      <span>Documents</span>
+    </div>
+  </div>
+  <div class="taskbar">
+    <button class="start-btn">
+      <img src="https://img.icons8.com/color/48/000000/windows-10.png" alt="Start">
+    </button>
+    <div class="taskbar-time" id="clock"></div>
+  </div>
+
+  <!-- Paint Modal -->
+  <div class="modal" id="paint-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        Paint
+        <button class="close-btn" onclick="closeModal('paint')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <canvas id="paint-canvas" width="350" height="200"></canvas>
+        <div style="margin-top:8px;">
+          <button onclick="clearCanvas()">Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Maze Modal -->
+  <div class="modal" id="maze-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        Maze
+        <button class="close-btn" onclick="closeModal('maze')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="maze-placeholder">Maze Game Coming Soon!</div>
+      </div>
+    </div>
+  </div>
+  <!-- Edge Modal -->
+  <div class="modal" id="edge-modal">
+    <div class="modal-content" style="min-width:600px;min-height:400px;">
+      <div class="modal-header">
+        Edge (Proxy)
+        <button class="close-btn" onclick="closeModal('edge')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <iframe src="https://broiscurrently.asleep.pw/" title="Edge Proxy"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Clock
+    function updateClock() {
+      const now = new Date();
+      const h = now.getHours().toString().padStart(2, '0');
+      const m = now.getMinutes().toString().padStart(2, '0');
+      document.getElementById('clock').textContent = `${h}:${m}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Modal logic
+    function openModal(app) {
+      document.getElementById(app + '-modal').style.display = 'flex';
+    }
+    function closeModal(app) {
+      document.getElementById(app + '-modal').style.display = 'none';
+    }
+
+    // Simple Paint logic
+    const canvas = document.getElementById('paint-canvas');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      let painting = false;
+      canvas.addEventListener('mousedown', () => painting = true);
+      canvas.addEventListener('mouseup', () => painting = false);
+      canvas.addEventListener('mouseleave', () => painting = false);
+      canvas.addEventListener('mousemove', draw);
+
+      function draw(e) {
+        if (!painting) return;
+        const rect = canvas.getBoundingClientRect();
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = '#0078d7';
+        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+      }
+      window.clearCanvas = function() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.beginPath();
+      }
+    }
+  </script>
+</body>
+</html>
